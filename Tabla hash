@@ -1,0 +1,93 @@
+class TablaHash:
+    def __init__(self, tamaño):
+        self.tamaño = tamaño
+        self.tabla = [[] for _ in range(tamaño)]
+
+    def funcion_hash_tipo(self, clave):
+        return hash(clave) % self.tamaño
+
+    def funcion_hash_ultimo_digito(self, clave):
+        return clave % 10
+
+    def funcion_hash_nivel(self, clave):
+        return clave // 10
+
+    def insertar(self, clave, valor, funcion_hash):
+        indice = funcion_hash(clave)
+        self.tabla[indice].append(valor)
+
+    def buscar(self, funcion_hash, clave):
+        indice = funcion_hash(clave)
+        return self.tabla[indice]
+
+    def mostrar(self):
+        for i, slot in enumerate(self.tabla):
+            if slot:
+                print(f"Índice {i}: {slot}")
+
+
+class Pokemon:
+    def __init__(self, numero, nombre, tipos, nivel):
+        self.numero = numero
+        self.nombre = nombre
+        self.tipos = tipos
+        self.nivel = nivel
+
+    def __repr__(self):
+        return f"{self.nombre} (#{self.numero}, {self.tipos}, Nivel {self.nivel})"
+
+
+def main():
+    tamaño = 10
+    tabla_por_tipo = TablaHash(tamaño)
+    tabla_por_ultimo_digito = TablaHash(10)
+    tabla_por_nivel = TablaHash(10)
+
+    
+    pokemones = [
+        Pokemon(3, "Venusaur", ["Planta", "Veneno"], 45),
+        Pokemon(6, "Charizard", ["Fuego", "Volador"], 36),
+        Pokemon(9, "Blastoise", ["Agua"], 40),
+        Pokemon(25, "Pikachu", ["Eléctrico"], 22),
+        Pokemon(30, "Nidorina", ["Veneno"], 16),
+        Pokemon(38, "Ninetales", ["Fuego"], 42),
+        Pokemon(99, "Kingler", ["Agua"], 35),
+        Pokemon(143, "Snorlax", ["Normal"], 45),
+        Pokemon(150, "Mewtwo", ["Psíquico"], 70),
+        Pokemon(217, "Ursaring", ["Normal"], 31)
+    ]
+
+    
+    for pokemon in pokemones:
+        for p_tipo in pokemon.tipos:
+            tabla_por_tipo.insertar(p_tipo, pokemon, tabla_por_tipo.funcion_hash_tipo)
+        tabla_por_ultimo_digito.insertar(pokemon.numero, pokemon, tabla_por_ultimo_digito.funcion_hash_ultimo_digito)
+        tabla_por_nivel.insertar(pokemon.nivel, pokemon, tabla_por_nivel.funcion_hash_nivel)
+
+   
+    print("Pokémon cuyos números terminan en 3, 7 y 9:")
+    for digito in [3, 7, 9]:
+        pokemones_por_digito = tabla_por_ultimo_digito.buscar(tabla_por_ultimo_digito.funcion_hash_ultimo_digito, digito)
+        if pokemones_por_digito:
+            print(f"Último dígito {digito}: {pokemones_por_digito}")
+
+   
+    print("\nPokémon cuyos niveles son múltiplos de 2, 5 y 10:")
+    for nivel in range(0, 100, 10):
+        pokemones_por_nivel = tabla_por_nivel.buscar(tabla_por_nivel.funcion_hash_nivel, nivel)
+        if pokemones_por_nivel:
+            for p in pokemones_por_nivel:
+                if p.nivel % 2 == 0 or p.nivel % 5 == 0:
+                    print(p)
+
+
+    tipos_especificos = ["Acero", "Fuego", "Eléctrico", "Hielo"]
+    print("\nPokémon de tipos específicos (Acero, Fuego, Eléctrico, Hielo):")
+    for p_tipo in tipos_especificos:
+        pokemones_por_tipo = tabla_por_tipo.buscar(tabla_por_tipo.funcion_hash_tipo, p_tipo)
+        if pokemones_por_tipo:
+            print(f"Tipo {p_tipo}: {pokemones_por_tipo}")
+
+
+if __name__ == "__main__":
+    main()
